@@ -36,11 +36,6 @@ std::size_t ATP::numSubordinates(const std::string& employee) const {
    
     Node* foundEmployee = findHelper(this->manager, employee);
 
-    if(!foundEmployee)
-    {
-        throw std::runtime_error("Employee not found");
-    }
-
     std::size_t count = 0;
 
     countSubordinates(this->manager, foundEmployee, count);
@@ -52,12 +47,14 @@ std::string ATP::getManager(const std::string& employee) const {
 
     Node* foundEmployee = findHelper(this->manager, employee);
 
-    if(!foundEmployee)
-    {
-        throw std::runtime_error("Employee not found");
-    }
+    Node* manager = getManagerHelper(manager, foundEmployee);
 
-    return getManagerHelper(manager, foundEmployee)->name;
+    if (!manager)
+    {
+        return "";
+    }
+    
+    return manager->name;
 }
 
 std::size_t ATP::numEmployees() const {
@@ -87,11 +84,6 @@ void ATP::fire(const std::string& employee) {
 
     Node* foundEmployee = findHelper(this->manager, employee);
 
-    if(!foundEmployee)
-    {
-        throw std::runtime_error("Employee not found");
-    }
-
     fireHelper(foundEmployee);
 
     return;
@@ -102,11 +94,6 @@ void ATP::hire(const std::string& employee, const std::string& manager) {
     Node* foundEmployee = findHelper(this->manager, employee);
 
     Node* foundManager = findHelper(this->manager, manager);
-        
-    if (!foundManager)
-    {
-        throw std::runtime_error("Manager not found");
-    }
 
     if (!foundEmployee)
     {
@@ -134,11 +121,6 @@ std::size_t ATP::maxChainLength() {
 std::size_t ATP::salary(const std::string& employee) const {
 
     Node* foundEmployee = findHelper(this->manager, employee);
-
-    if (!foundEmployee)
-    {
-        throw std::runtime_error("Employee not found");
-    }
 
     return calculateSalary(foundEmployee);
 }
@@ -391,6 +373,7 @@ void ATP::incorporateHelper(Node* manager) {
 }
 
 ATP::Node* ATP::toPromote(std::vector<Node*>& subordinates) const {
+    
     if (subordinates.empty()) 
     {
         return nullptr;
@@ -416,6 +399,7 @@ ATP::Node* ATP::toPromote(std::vector<Node*>& subordinates) const {
 }
 
 void ATP::modernizeHelper(Node* manager, std::size_t level) {
+
     if (!manager)
     {
         return;

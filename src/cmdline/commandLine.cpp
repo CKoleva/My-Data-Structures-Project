@@ -65,6 +65,5 @@ void CmdLine::parseCmdLine(const std::string& str) {
     }
 
     if(argv.empty()) return;
-    
     toUpper(this->argv[0]);
 }

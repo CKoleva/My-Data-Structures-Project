@@ -5,8 +5,8 @@
 
 class FileHandler {
 public:
-    static bool readFile(const std::string& fileName, Association& association);
+    static void readFile(const std::string& fileName, Association& association, const std::string& atpName);
 
-private:
     static void loadPair(std::string& line, ATP* atp);
+private:
 };

@@ -3,6 +3,7 @@
 #include <iostream>
 #include "commandLine.h"
 #include "association.h"
+#include "fileHandler.h"
 
 class Engine {
 public:
@@ -14,10 +15,11 @@ private:
     {"HELP", "LOAD", "SAVE", "FIND", "NUM_SUBORDINATES", "MANAGER", "NUM_EMPLOYEES", "OVERLOADED", "JOIN", "FIRE", "HIRE", "SALARY", "INCORPORATE", "MODERNIZE", "EXIT"};
 
     Association& association;
-    static bool unsavedChanges;
-    static bool endProgram;
+    std::vector<bool> unsavedChanges;
+    bool endProgram;
 
     Engine();
+    ~Engine();
     Engine(const Engine&) = delete;
     Engine(Engine&&) = delete;
     Engine& operator=(const Engine&) = delete;
@@ -29,10 +31,8 @@ private:
 
     void help() const;
 
-//tbd
     void load(const std::string& atpName, const std::string& fileName);
 
-//tbd
     void load(const std::string& atpName);
 
 //tbd
@@ -65,4 +65,10 @@ private:
     void modernize(const std::string& atpName);
 
     void exit();
+
+    bool checkFileName(const std::string& fileName) const;
+    
+    void markUnsaved(ATP* atp, const bool value); 
+
+    bool isValidATPName(const std::string& str) const;
 };

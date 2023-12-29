@@ -29,7 +29,7 @@ public:
 
     void fire(const std::string& employee);
 
-    void hire(const std::string& employee, const std::string& manager); //if find - fire then hire
+    void hire(const std::string& employee, const std::string& manager);
 
     std::size_t maxChainLength();
 

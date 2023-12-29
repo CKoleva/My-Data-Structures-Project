@@ -8,7 +8,7 @@ Association& Association::getInstance() {
     return instance;
 }   
 
-ATP* Association::getATP(const std::string atpName) {
+ATP* Association::getATP(const std::string& atpName) {
 
     for(ATP* atp : this->ATPs)
     {
@@ -21,10 +21,36 @@ ATP* Association::getATP(const std::string atpName) {
     return nullptr;
 }
 
-//Private methods
+std::vector<ATP*> Association::getATPs() const {
+    return this->ATPs;
+}
+
+void Association::add(const std::string& atpName) {
+    
+    if (this->getATP(atpName))
+    {
+        std::cout << atpName << " already exists.\n";
+        return;
+    }
+    
+}
+
+void Association::removeATP(ATP* atp)
+{
+    std::vector<ATP*>::iterator it = std::find(ATPs.begin(), ATPs.end(), atp);
+    if (it != ATPs.end()) 
+    {
+        ATPs.erase(it);
+        delete atp;
+    }
+}
+
 Association::~Association() {
     this->deallocate();
 }
+
+//Private methods
+Association::Association() {}
 
 void Association::deallocate() {
     for(ATP* atp : this->ATPs)

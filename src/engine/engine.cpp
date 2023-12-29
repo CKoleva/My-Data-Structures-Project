@@ -8,6 +8,10 @@ Engine& Engine::getInstance()
     return instance;
 }
 
+void start(); //tbd
+
+Engine::~Engine() {}
+
 //Private methods
 Engine::Engine() : association(Association::getInstance()) {}
 
@@ -24,13 +28,29 @@ void Engine::execute(CmdLine& cmdl) {
     {
         this->help();
     }
-    else if(command == "LOAD" && cmdl.getSize() == 2) //tbd
+    else if(command == "LOAD" && cmdl.getSize() == 2)
     {
+        if (!isValidATPName(cmdl[1]))
+        {
+            std::cout << "The name of the ATP should contain olny alphanumerical characters and underscore.\n";
+            return;
+        }
+
         this->load(cmdl[1]);
+
+        std::cout << cmdl[1] << " loaded successfully!\n";
     }
-    else if(command == "LOAD" && cmdl.getSize() == 3) //tbd
+    else if(command == "LOAD" && cmdl.getSize() == 3)
     {
+        if (!isValidATPName(cmdl[1]))
+        {
+            std::cout << "The name of the ATP should contain olny alphanumerical characters and underscore.\n";
+            return;
+        }
+        
         this->load(cmdl[1], cmdl[2]);
+
+        std::cout << cmdl[1] << " loaded successfully!\n";
     }
     else if(command == "SAVE" && cmdl.getSize() == 2) //tbd
     {
@@ -38,7 +58,7 @@ void Engine::execute(CmdLine& cmdl) {
     }
     else if(command == "SAVE" && cmdl.getSize() == 3) //tbd
     {
-        this->load(cmdl[1], cmdl[2]);
+        this->save(cmdl[1], cmdl[2]);
     }
     else if(command == "FIND")
     {
@@ -307,6 +327,36 @@ void Engine::help() const {
     return;
 }
 
+void Engine::load(const std::string& atpName, const std::string& fileName) {
+    
+    FileHandler::readFile(fileName, this->association, atpName);
+}
+
+void Engine::load(const std::string& atpName) {
+    
+    this->association.add(atpName);
+
+    ATP* atp = association.getATP(atpName);
+
+    std::string managerEmployeePair;
+
+    while (std::getline(std::cin, managerEmployeePair)) {
+        if (managerEmployeePair.size() >= 2 && managerEmployeePair[0] == '^' &&
+            (managerEmployeePair[1] == 'Z' || managerEmployeePair[1] == 'D')) 
+        {
+            break; 
+        }
+
+        if (managerEmployeePair.empty()) 
+        {
+            std::cout << "Invalid input. Please provide manager-employee pairs.\n";
+            continue;
+        }
+
+        FileHandler::loadPair(managerEmployeePair, atp);
+    }
+}
+
 std::string Engine::find(const std::string& atpName, const std::string& employee) const {
     
     ATP* atp = this->association.getATP(atpName);
@@ -357,6 +407,8 @@ std::size_t Engine::overloaded(const std::string& atpName) const {
 void Engine::fire(const std::string& atpName, const std::string& employee) {
     
     ATP* atp = this->association.getATP(atpName);
+    
+    markUnsaved(atp, true);
 
     atp->fire(employee);
 
@@ -368,6 +420,8 @@ void Engine::hire(const std::string& atpName, const std::string& employee, const
     ATP* atp = this->association.getATP(atpName);
 
     atp->hire(employee, manager);
+    
+    markUnsaved(atp, true);
 
     return;
 }
@@ -385,6 +439,8 @@ void Engine::incorporate(const std::string& atpName) {
     
     atp->incorporate();
 
+    markUnsaved(atp, true);
+
     return;
 }
 
@@ -394,7 +450,81 @@ void Engine::modernize(const std::string& atpName) {
     
     atp->modernize();
 
+    markUnsaved(atp, true);
+
     return;
 }
 
-void Engine::exit() {}  //tbd
+void Engine::exit() {
+
+    std::vector<ATP*> ATPs = this->association.getATPs();
+
+    for (int i = 0; i < ATPs.size(); ++i)
+    {
+        if (unsavedChanges[i])
+        {
+            std::cout << ATPs[i]->getName() << " is modified, but not saved.\nEnter file name to save it:\n";
+
+            std::string fileName;
+
+            std::cin >> fileName;
+
+            if (!checkFileName(fileName))
+            {
+                return;
+            }
+
+            this->save(ATPs[i]->getName(), fileName);
+        }   
+    }
+    
+    std::cout << "Goodbye!\n";
+    endProgram = true;
+}
+
+bool Engine::checkFileName(const std::string& fileName) const {
+    size_t nameSize = fileName.size();
+    
+    if (nameSize < 5 || fileName.substr(nameSize - 4) != ".txt") {
+        std::cout << "Invalid file. This program supports XXX.txt files where XXX is the name of the file.\n";
+        return false;
+    }
+
+    const std::string forbiddenSymbols = "/\\:*?\"<>|{}#%&=@$+!'";
+    if (fileName.find_first_of(forbiddenSymbols) != std::string::npos) {
+        std::cout << "File name contains forbidden symbols (/\\:*?\"<>|{}#%&=@$+!).\n";
+        return false;
+    }
+    
+    return true;
+}
+
+void Engine::markUnsaved(ATP* atp, const bool value) {
+
+    std::vector<ATP*> ATPs = this->association.getATPs();
+
+    for(std::size_t i = 0; i < ATPs.size(); ++i)
+    {
+        if (ATPs[i] == atp)
+        {
+            this->unsavedChanges[i] = value;
+            return;
+        }
+    }
+}
+
+bool Engine::isValidATPName(const std::string& str) const {
+    
+    for (char ch : str) 
+    {
+        if (!((ch >= '0' && ch <= '9') ||
+              (ch >= 'A' && ch <= 'Z') ||
+              (ch >= 'a' && ch <= 'z') ||
+              (ch == '_'))) 
+        {
+            return false; 
+        }
+    }
+
+    return true;
+}

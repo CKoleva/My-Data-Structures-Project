@@ -47,7 +47,7 @@ std::string ATP::getManager(const std::string& employee) const {
 
     Node* foundEmployee = findHelper(this->manager, employee);
 
-    Node* manager = getManagerHelper(manager, foundEmployee);
+    Node* manager = getManagerHelper(this->manager, foundEmployee);
 
     if (!manager)
     {
@@ -70,7 +70,7 @@ std::size_t ATP::overloaded(std::size_t overloadNumber) const {
 
     std::size_t count = 0;
 
-    overloadedHelper(this->manager, overloadNumber, numEmployees() - 1, count);
+    overloadedHelper(this->manager, overloadNumber, count);
 
     return count;
 }
@@ -79,7 +79,7 @@ void ATP::fire(const std::string& employee) {
 
     if(this->manager->name == employee) 
     {
-        throw std::logic_error("Cannot fire CEO_to");
+        throw std::logic_error("Cannot fire CEO_to!");
     }
 
     Node* foundEmployee = findHelper(this->manager, employee);
@@ -103,7 +103,7 @@ void ATP::hire(const std::string& employee, const std::string& manager) {
     
     if (findHelper(foundEmployee, manager))
     {
-        throw std::logic_error("Cannot hire a subordinate to be manager of his direct or indirect manager");
+        throw std::logic_error("Cannot hire a subordinate to be manager of his direct or indirect manager.");
     }
     
     Node* immediateManager = getManagerHelper(this->manager, foundEmployee);
@@ -220,7 +220,7 @@ void ATP::countSubordinates(const Node* manager, Node* employee, std::size_t& co
 
 ATP::Node* ATP::getManagerHelper(Node* manager, Node* employee) const {
     
-    if (!manager) 
+    if (!manager || employee == manager) 
     {
         return nullptr;
     }
@@ -259,26 +259,26 @@ void ATP::countEmployees(const Node* manager, std::size_t& count) const {
     }
 }
 
-void ATP::overloadedHelper(const Node* manager, std::size_t overloadNumber, std::size_t subordinatesCount, std::size_t& count) const {
+std::size_t ATP::overloadedHelper(const Node* manager, std::size_t overloadNumber, std::size_t& count) const {
 
     if(!manager)
     {
         return;
     }   
 
-    if(subordinatesCount > overloadNumber)
+    std::size_t currCounter = 0;
+
+    for(Node* subodinate : manager->subordinates)
+    {
+        currCounter = manager->subordinates.size() + overloadedHelper(subodinate, overloadNumber, count);
+    }
+
+    if (currCounter > overloadNumber)
     {
         ++count;
     }
-    else
-    {
-        return;
-    }
-
-    for (const Node* subordinate : manager->subordinates)
-    {
-        overloadedHelper(subordinate, overloadNumber,subordinatesCount - 1, count);
-    }
+    
+    return currCounter;
 }
 
 void ATP::fireHelper(Node* employee) {
@@ -295,10 +295,14 @@ void ATP::fireHelper(Node* employee) {
 
 void ATP::removeSubordinate(Node* manager, Node* employee) {
 
-    manager->subordinates.erase(std::remove(manager->subordinates.begin(),
-                                                     manager->subordinates.end(),
-                                                     employee),
-                                 manager->subordinates.end());
+    for (size_t i = 0; i < manager->subordinates.size(); ++i) 
+    {
+        if (manager->subordinates[i] == employee) 
+        {
+            manager->subordinates.erase(manager->subordinates.begin() + i);
+            break;
+        }
+    }
 }
 
 std::size_t ATP::maxDepth(Node* manager) const {
@@ -373,7 +377,7 @@ void ATP::incorporateHelper(Node* manager) {
 }
 
 ATP::Node* ATP::toPromote(std::vector<Node*>& subordinates) const {
-    
+
     if (subordinates.empty()) 
     {
         return nullptr;

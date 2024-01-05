@@ -65,7 +65,7 @@ private:
 
     void countEmployees(const Node* manager, std::size_t& count) const;
 
-    void overloadedHelper(const Node* manager, std::size_t overloadNumber, std::size_t subordinatesCount, std::size_t& count) const;
+    std::size_t overloadedHelper(const Node* manager, std::size_t overloadNumber, std::size_t& count) const;
 
     void fireHelper(Node* employee);
 

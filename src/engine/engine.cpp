@@ -199,8 +199,14 @@ void Engine::execute(CmdLine& cmdl) {
             return;
         }
 
+        if (atp->find(cmdl[2]))
+        {
+            std::cout << cmdl[2] << " already works at " << cmdl[1] << ".\n";
+            return;
+        }
+
         this->hire(cmdl[1], cmdl[2], cmdl[3]);
-        std::cout << cmdl[2] << " was fired.\n";
+        std::cout << cmdl[2] << " was hired.\n";
 
     }
     else if(command == "SALARY")
@@ -219,7 +225,15 @@ void Engine::execute(CmdLine& cmdl) {
             return;
         }
 
-        std::cout << "The salary is " << this->salary(cmdl[1], cmdl[2]) << " euro.\n";
+        std::size_t result = this->salary(cmdl[1], cmdl[2]);
+
+        if (result == 0)
+        {
+            std::cout << "The salary is " << result << " euro, but... you've just received a 'No Subordinates, No Problem' award!\n";
+        }
+        
+
+        std::cout << "The salary is " << result << " euro.\n";
     }
     else if(command == "INCORPORATE")
     {
@@ -469,9 +483,9 @@ void Engine::exit() {
 
             std::cin >> fileName;
 
-            if (!checkFileName(fileName))
+            while (!checkFileName(fileName))
             {
-                return;
+                std::cin >> fileName;
             }
 
             this->save(ATPs[i]->getName(), fileName);

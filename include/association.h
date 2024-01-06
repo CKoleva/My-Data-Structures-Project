@@ -15,6 +15,8 @@ public:
 
     void add(const std::string& atpName);
 
+    void add(ATP* atp);
+
     void removeATP(ATP* atp);
 
     ~Association();

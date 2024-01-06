@@ -4,6 +4,9 @@
 #include <vector>
 #include <cstddef>
 #include <stdexcept>
+#include <queue>
+
+class Association;
 
 class ATP {
 public:
@@ -16,6 +19,8 @@ public:
     ~ATP();
 
     std::string getName();
+
+    std::string hierarchyRepresentation();
 
     bool find(const std::string& employee) const;
 
@@ -39,6 +44,8 @@ public:
 
     void modernize();
 
+    void mergeATPs(const ATP* atp1, const ATP* atp2);
+
 private:
     struct Node
     {
@@ -55,12 +62,16 @@ private:
 
     Node* copy(Node* manager);
 
-//check well
+    void hierarchyRepresentationHelper(Node* manager, std::string& result);
+
+    void sortTree(Node* manager);
+
+    void sortSubordinates(Node* manager);
+
     Node* findHelper(Node* manager, const std::string& employee) const;
 
     void countSubordinates(const Node* current, Node* employee, std::size_t& count) const;
 
-//check well
     Node* getManagerHelper(Node* manager, Node* employee) const;
 
     void countEmployees(const Node* manager, std::size_t& count) const;
@@ -80,4 +91,5 @@ private:
     Node* toPromote(std::vector<Node*>& subordinates) const;
 
     void modernizeHelper(Node* manager, std::size_t level);
+
 };

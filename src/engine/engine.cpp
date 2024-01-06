@@ -8,7 +8,29 @@ Engine& Engine::getInstance()
     return instance;
 }
 
-void start(); //tbd
+void Engine::start() {
+
+    std::string commandLine;
+
+    while (endProgram == false)
+    {
+        std::cout << "> ";
+        getline(std::cin, commandLine);
+        CmdLine cmdl(commandLine);
+        try
+        {
+            this->execute(cmdl);
+        }
+        catch(const std::bad_alloc& mmry)
+        {
+            std::cout << "Memory problem" << std::endl;
+        }
+        catch(const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+        }
+    }
+}
 
 Engine::~Engine() {}
 
@@ -52,13 +74,32 @@ void Engine::execute(CmdLine& cmdl) {
 
         std::cout << cmdl[1] << " loaded successfully!\n";
     }
-    else if(command == "SAVE" && cmdl.getSize() == 2) //tbd
+    else if(command == "SAVE" && cmdl.getSize() == 2)
     {
-        this->save(cmdl[1]);
+        ATP* atp = this->association.getATP(cmdl[1]);
+
+        if (!atp)
+        {
+            std::cout << cmdl[1] + " is an unknown office!\n";
+            return;
+        }
+
+        std::cout << this->save(cmdl[1]);
+        
     }
-    else if(command == "SAVE" && cmdl.getSize() == 3) //tbd
+    else if(command == "SAVE" && cmdl.getSize() == 3)
     {
+        ATP* atp = this->association.getATP(cmdl[1]);
+
+        if (!atp)
+        {
+            std::cout << cmdl[1] + " is an unknown office!\n";
+            return;
+        }
+
         this->save(cmdl[1], cmdl[2]);
+
+        std::cout << cmdl[1] << " saved.\n";
     }
     else if(command == "FIND")
     {
@@ -159,9 +200,34 @@ void Engine::execute(CmdLine& cmdl) {
 
         std::cout << "There are " << result << " overoaded employees in " << cmdl[1] << ".\n";
     }
-    else if(command == "JOIN")      //tbd
+    else if(command == "JOIN")
     {
-        this->join(cmdl[1], cmdl[2], cmdl[3]);
+        ATP* atp1 = this->association.getATP(cmdl[1]);
+
+        ATP* atp2 = this->association.getATP(cmdl[2]);
+
+        if (!atp1)
+        {
+            std::cout << cmdl[1] + " is an unknown office!\n";
+            return;
+        }
+
+        if (!atp2)
+        {
+            std::cout << cmdl[2] + " is an unknown office!\n";
+            return;
+        }
+
+        if (!isValidATPName(cmdl[3]))
+        {
+            std::cout << "The name of the ATP should contain olny alphanumerical characters and underscore.\n";
+            return;
+        }
+
+        this->join(atp1, atp2, cmdl[3]);
+
+        std::cout << cmdl[3] << " created.\n";
+
     }
     else if(command == "FIRE")
     {
@@ -320,12 +386,12 @@ bool Engine::isValid(CmdLine& cmdl) const {
 
 void Engine::help() const {
 
-    std::cout << "The following commands are supported:\n"
+    std::cout << "The following commands are supported:\n\n"
     << "lead <ATP-name>	                            loads <ATP-name> from the standars input until Ctrl+z/Ctrl+d\n" 
-    << "lead <ATP-name> <file-name>	                loads <ATP-name> from <file-name>\n" 
+    << "lead <ATP-name> <file-name>                 loads <ATP-name> from <file-name>\n" 
     << "save <ATP-name>	                            prints <ATP-name>\n" 
-    << "save <ATP-name> <file-name>	                saves <ATP-name> to <file-name>\n"
-    << "find <ATP-name> <employee>		            checks if <employee> works in <ATP-name>\n"
+    << "save <ATP-name> <file-name>                 saves <ATP-name> to <file-name>\n"
+    << "find <ATP-name> <employee>                  checks if <employee> works in <ATP-name>\n"
     << "num_subordinates <ATP-name> <employee>      displays the number of direct subordinates of <employee> in <ATP-name>\n"
     << "manager <ATP-name> <employee>               displays the immediate manager of <employee> in <ATP-name>\n"
     << "num_employees <ATP-name>                    displays the number of employees in <ATP-name>\n"
@@ -338,12 +404,14 @@ void Engine::help() const {
     << "modernize <ATP-name>                        modernizes <ATP-name>\n"
     << "exit                                        exits the program\n";
 
-    return;
 }
 
 void Engine::load(const std::string& atpName, const std::string& fileName) {
     
     FileHandler::readFile(fileName, this->association, atpName);
+
+    this->unsavedChanges.push_back(false);
+
 }
 
 void Engine::load(const std::string& atpName) {
@@ -354,7 +422,8 @@ void Engine::load(const std::string& atpName) {
 
     std::string managerEmployeePair;
 
-    while (std::getline(std::cin, managerEmployeePair)) {
+    while (std::getline(std::cin, managerEmployeePair)) 
+    {
         if (managerEmployeePair.size() >= 2 && managerEmployeePair[0] == '^' &&
             (managerEmployeePair[1] == 'Z' || managerEmployeePair[1] == 'D')) 
         {
@@ -367,8 +436,27 @@ void Engine::load(const std::string& atpName) {
             continue;
         }
 
-        FileHandler::loadPair(managerEmployeePair, atp);
+        FileHandler::loadPair(managerEmployeePair, atp, this->association);
     }
+
+    this->unsavedChanges.push_back(false);
+
+}
+
+std::string Engine::save(const std::string& atpName) {
+    
+    ATP* atp = this->association.getATP(atpName);
+
+    markUnsaved(this->association.getATP(atpName), false);
+
+    return atp->hierarchyRepresentation();
+}
+
+void Engine::save(const std::string& atpName, const std::string& fileName) {
+
+    FileHandler::writeFile(fileName, this->association, atpName);
+
+    markUnsaved(this->association.getATP(atpName), false);
 }
 
 std::string Engine::find(const std::string& atpName, const std::string& employee) const {
@@ -418,15 +506,22 @@ std::size_t Engine::overloaded(const std::string& atpName) const {
     return atp->overloaded(overloadNumber);
 }
 
+void Engine::join(const ATP* atp1, const ATP* atp2, const std::string& atpResultName) {
+
+    joinTrees(atp1, atp2, atpResultName);
+
+    this->unsavedChanges.push_back(true);
+
+}
+
 void Engine::fire(const std::string& atpName, const std::string& employee) {
     
     ATP* atp = this->association.getATP(atpName);
     
-    markUnsaved(atp, true);
-
     atp->fire(employee);
 
-    return;
+    markUnsaved(atp, true);
+
 }
 
 void Engine::hire(const std::string& atpName, const std::string& employee, const std::string& manager) {
@@ -437,7 +532,6 @@ void Engine::hire(const std::string& atpName, const std::string& employee, const
     
     markUnsaved(atp, true);
 
-    return;
 }
 
 std::size_t Engine::salary(const std::string& atpName, const std::string& employee) const {
@@ -455,7 +549,6 @@ void Engine::incorporate(const std::string& atpName) {
 
     markUnsaved(atp, true);
 
-    return;
 }
 
 void Engine::modernize(const std::string& atpName) {
@@ -466,7 +559,6 @@ void Engine::modernize(const std::string& atpName) {
 
     markUnsaved(atp, true);
 
-    return;
 }
 
 void Engine::exit() {
@@ -494,6 +586,7 @@ void Engine::exit() {
     
     std::cout << "Goodbye!\n";
     endProgram = true;
+
 }
 
 bool Engine::checkFileName(const std::string& fileName) const {
@@ -541,4 +634,13 @@ bool Engine::isValidATPName(const std::string& str) const {
     }
 
     return true;
+}
+
+void Engine::joinTrees(const ATP* atp1, const ATP* atp2, const std::string& atpResultName) {
+
+    ATP* atpResult = new ATP(atpResultName);
+    
+    atpResult->mergeATPs(atp1, atp2);
+
+    association.add(atpResult);
 }

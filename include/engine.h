@@ -9,6 +9,8 @@ class Engine {
 public:
     static Engine& getInstance();
 
+    void start();
+
 private:
     static const std::size_t COMMANDS_COUNT = 15;
     const std::string validCommands[COMMANDS_COUNT] = 
@@ -35,11 +37,9 @@ private:
 
     void load(const std::string& atpName);
 
-//tbd
-    void save(const std::string& atpName, const std::string& fileName) const;
+    void save(const std::string& atpName, const std::string& fileName);
 
-//tbd
-    void save(const std::string& atpName) const;
+    std::string save(const std::string& atpName);
 
     std::string find(const std::string& atpName, const std::string& employee) const;
 
@@ -51,8 +51,7 @@ private:
 
     std::size_t overloaded(const std::string& atpName) const;
 
-//tbd
-    void join(const std::string& atp1, const std::string& atp2, const std::string& atpResult);
+    void join(const ATP* atp1, const ATP* atp2, const std::string& atpResultName);
 
     void fire(const std::string& atpName, const std::string& employee);
 
@@ -71,4 +70,6 @@ private:
     void markUnsaved(ATP* atp, const bool value); 
 
     bool isValidATPName(const std::string& str) const;
+
+    void joinTrees(const ATP* atp1, const ATP* atp2, const std::string& atpResultName);
 };

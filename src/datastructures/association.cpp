@@ -35,6 +35,11 @@ void Association::add(const std::string& atpName) {
     
 }
 
+void Association::add(ATP* atp) {
+
+    this->ATPs.push_back(atp);
+}
+
 void Association::removeATP(ATP* atp)
 {
     std::vector<ATP*>::iterator it = std::find(ATPs.begin(), ATPs.end(), atp);

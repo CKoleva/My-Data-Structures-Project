@@ -1,8 +1,11 @@
 set(CMDLINE_SOURCES
     commandLine.cpp
-    # Add other source files related to ATP if any
 )
 
-add_library(CommandLineLibrary ${CMDLINEFILEHANDLER_SOURCES})
+add_library(CommandLineLibrary ${CMDLINE_SOURCES})
 
 target_include_directories(CommandLineLibrary PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+add_executable(cmdline cmdline.cpp ${CMDLINE_SOURCES})
+
+target_link_libraries(cmdline CommandLineLibrary)

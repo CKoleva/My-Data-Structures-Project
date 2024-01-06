@@ -1,0 +1,4 @@
+add_subdirectory(app)
+add_subdirectory(cmdline)
+add_subdirectory(datastructures)
+add_subdirectory(io)

@@ -1,5 +1,7 @@
 #include "atp.h"
 
+class Association;
+
 //Public methods
 ATP::ATP(const std::string& name) {
     this->manager = new Node("CEO_to");
@@ -26,6 +28,16 @@ ATP::~ATP() {
 
 std::string ATP::getName() {
     return this->name;
+}
+
+std::string ATP::hierarchyRepresentation() {
+    
+    std::string result;
+
+    sortTree(this->manager);
+    hierarchyRepresentationHelper(this->manager, result);
+
+    return result;
 }
 
 bool ATP::find(const std::string& employee) const {
@@ -175,6 +187,65 @@ ATP::Node* ATP::copy(Node* manager) {
     }
 
     return newManager;
+}
+
+void ATP::hierarchyRepresentationHelper(Node* manager, std::string& result)  {
+    
+    if (!manager) 
+    {
+        return;
+    }
+
+    std::queue<Node*> q;
+    q.push(manager);
+
+    while (!q.empty()) 
+    {
+        Node* current = q.front();
+        q.pop();
+
+        for (Node* subordinate : current->subordinates)
+        {
+            result += current->name + "-" + subordinate->name + "\n";
+            q.push(subordinate);
+        }
+    }
+}
+
+void ATP::sortTree(Node* manager) {
+    
+    if (!manager) 
+    {
+        return;
+    }
+
+    for (Node* subordinate : manager->subordinates) 
+    {
+        sortTree(subordinate);
+    }
+
+    sortSubordinates(manager);
+}
+
+void ATP::sortSubordinates(Node* manager) 
+{
+    if (manager->subordinates.size() < 2)
+    {
+        return;
+    }
+    
+    for (size_t i = 0; i < manager->subordinates.size() - 1; ++i) 
+    {
+        for (size_t j = 0; j < manager->subordinates.size() - i - 1; ++j) 
+        {
+            if (manager->subordinates[j]->name > manager->subordinates[j+1]->name) 
+            {
+                Node* temp = manager->subordinates[j];
+                manager->subordinates[j] = manager->subordinates[j+1];
+                manager->subordinates[j+1] = temp;
+            }
+        }
+    }
 }
 
 ATP::Node* ATP::findHelper(Node* manager, const std::string& employee) const {
@@ -422,4 +493,8 @@ void ATP::modernizeHelper(Node* manager, std::size_t level) {
     this->fireHelper(manager);
 
     return;
+}
+
+void ATP::mergeATPs(const ATP* atp1, const ATP* atp2) {
+    this->copy(atp1->manager);
 }

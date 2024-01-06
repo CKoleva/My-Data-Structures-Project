@@ -3,7 +3,9 @@
 void FileHandler::readFile(const std::string& fileName, Association& association, const std::string& atpName) {
     
     std::vector<std::string> lines;
-    std::ifstream file(fileName);
+
+    std::string filePath = "../../../../" + fileName;
+    std::ifstream file(filePath);
     
     if (!file.is_open()) 
     {
@@ -23,7 +25,7 @@ void FileHandler::readFile(const std::string& fileName, Association& association
 
     ATP* atp = association.getATP(atpName);
 
-    for (size_t i = 1; i < lines.size(); ++i) 
+    for (size_t i = 0; i < lines.size(); ++i) 
     {
         loadPair(lines[i], atp, association);
     }
@@ -69,7 +71,8 @@ void FileHandler::writeFile(const std::string& filename, Association& associatio
 
     std::string hierarchy = atp->hierarchyRepresentation();
 
-    std::ofstream file(filename);
+    std::string filePath = "../../../../" + filename;
+    std::ofstream file(filePath);
 
     if (file.is_open()) 
     {

@@ -54,7 +54,7 @@ void Engine::execute(CmdLine& cmdl) {
     {
         if (!isValidATPName(cmdl[1]))
         {
-            std::cout << "The name of the ATP should contain olny alphanumerical characters and underscore.\n";
+            std::cout << "The name of the ATP should contain only alphanumerical characters and underscore.\n";
             return;
         }
 
@@ -66,7 +66,7 @@ void Engine::execute(CmdLine& cmdl) {
     {
         if (!isValidATPName(cmdl[1]))
         {
-            std::cout << "The name of the ATP should contain olny alphanumerical characters and underscore.\n";
+            std::cout << "The name of the ATP should contain only alphanumerical characters and underscore.\n";
             return;
         }
         
@@ -103,7 +103,7 @@ void Engine::execute(CmdLine& cmdl) {
     }
     else if(command == "FIND")
     {
-        this->find(cmdl[1], cmdl[2]);
+        std::cout << this->find(cmdl[1], cmdl[2]);
     }
     else if(command == "NUM_SUBORDINATES")
     {
@@ -194,7 +194,7 @@ void Engine::execute(CmdLine& cmdl) {
 
         if (result == 0)
         {
-            std::cout << "There are no overloaded eployees in " << cmdl[1] << ".\n";
+            std::cout << "There are no overloaded employees in " << cmdl[1] << ".\n";
             return;
         }
 
@@ -265,12 +265,6 @@ void Engine::execute(CmdLine& cmdl) {
             return;
         }
 
-        if (atp->find(cmdl[2]))
-        {
-            std::cout << cmdl[2] << " already works at " << cmdl[1] << ".\n";
-            return;
-        }
-
         this->hire(cmdl[1], cmdl[2], cmdl[3]);
         std::cout << cmdl[2] << " was hired.\n";
 
@@ -296,6 +290,7 @@ void Engine::execute(CmdLine& cmdl) {
         if (result == 0)
         {
             std::cout << "The salary is " << result << " euro, but... you've just received a 'No Subordinates, No Problem' award!\n";
+            return;
         }
         
 
@@ -365,7 +360,7 @@ bool Engine::isValid(CmdLine& cmdl) const {
         return false;
     }
 
-    if ((command == "NUM_SUBORDINATES" || command == "FIND" || command == "MANAGER" || command == "FIRE" || "SALARY") && argc != 3)
+    if ((command == "NUM_SUBORDINATES" || command == "FIND" || command == "MANAGER" || command == "FIRE" || command == "SALARY") && argc != 3)
     {
         std::cout << "Invalid number of arguments!. Type \"help\" to see all supported commands.\n";
         return false;
@@ -467,15 +462,15 @@ std::string Engine::find(const std::string& atpName, const std::string& employee
 
     if (!atp)
     {
-        return atpName + " is an unknown office!";
+        return atpName + " is an unknown office!\n";
     }
 
     if (atp->find(employee))
     {
-        return employee + " is employed in " + atpName + ".";
+        return employee + " is employed in " + atpName + ".\n";
     }
     
-    return employee + " is not employed in " + atpName + ".";
+    return employee + " is not employed in " + atpName + ".\n";
 }
 
 std::size_t Engine::num_subordinates(const std::string& atpName, const std::string& employee) const {

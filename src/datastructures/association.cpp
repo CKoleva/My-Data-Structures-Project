@@ -29,10 +29,14 @@ void Association::add(const std::string& atpName) {
     
     if (this->getATP(atpName))
     {
-        std::cout << atpName << " already exists.\n";
+        std::cout << atpName;
+        throw std::runtime_error(" already exists.");
         return;
     }
     
+    ATP* atp = new ATP(atpName);
+    this->ATPs.push_back(atp);
+
 }
 
 void Association::add(ATP* atp) {
@@ -42,11 +46,13 @@ void Association::add(ATP* atp) {
 
 void Association::removeATP(ATP* atp)
 {
-    std::vector<ATP*>::iterator it = std::find(ATPs.begin(), ATPs.end(), atp);
-    if (it != ATPs.end()) 
+    for(std::size_t i = 0; i < this->ATPs.size(); ++i)
     {
-        ATPs.erase(it);
-        delete atp;
+        if (this->ATPs[i] == atp)
+        {
+            delete atp;
+            this->ATPs.erase(this->ATPs.begin() + i);
+        }
     }
 }
 

@@ -441,10 +441,13 @@ void ATP::incorporateHelper(Node* manager) {
         }
     }
 
-    std::vector<Node*>::iterator newEndIt = std::remove_if(manager->subordinates.begin(), manager->subordinates.end(),
-                                [toBePromoted](const Node* employee){return employee != toBePromoted;} );
-
-    manager->subordinates.erase(newEndIt, manager->subordinates.end());
+    for(Node* employee : manager->subordinates)
+    {
+        if (employee != toBePromoted)
+        {
+            this->removeSubordinate(manager, employee);
+        }
+    }
 }
 
 ATP::Node* ATP::toPromote(std::vector<Node*>& subordinates) const {

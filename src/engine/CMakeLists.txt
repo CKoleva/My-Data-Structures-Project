@@ -1,11 +1,13 @@
-set(ENGINE_SOURCES
-    engine.cpp
+add_library(engine)
+
+target_include_directories(
+    engine
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
 )
 
-add_library(EngineLibrary ${ENGINE_SOURCES})
-
-target_include_directories(EngineLibrary PUBLIC ${CMAKE_SOURCE_DIR}/include)
-
-add_executable(engine engine.cpp)
-
-target_link_libraries(engine EngineLibrary)
+target_sources(
+    engine
+    PUBLIC
+    engine.cpp
+)

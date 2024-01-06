@@ -21,7 +21,7 @@ void Engine::start() {
         {
             this->execute(cmdl);
         }
-        catch(const std::bad_alloc& mmry)
+        catch(const std::bad_alloc&)
         {
             std::cout << "Memory problem" << std::endl;
         }
@@ -382,6 +382,8 @@ bool Engine::isValid(CmdLine& cmdl) const {
         std::cout << "Invalid number of arguments!. Type \"help\" to see all supported commands.\n";
         return false;
     }
+
+    return true;
 }
 
 void Engine::help() const {

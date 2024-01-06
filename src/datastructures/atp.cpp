@@ -334,7 +334,7 @@ std::size_t ATP::overloadedHelper(const Node* manager, std::size_t overloadNumbe
 
     if(!manager)
     {
-        return;
+        return 0;
     }   
 
     std::size_t currCounter = 0;

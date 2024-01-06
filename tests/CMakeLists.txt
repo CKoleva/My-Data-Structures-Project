@@ -1,30 +1,20 @@
-enable_testing()
+Include(FetchContent)
 
-find_package(Catch2 REQUIRED)
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.4.0
+)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+FetchContent_MakeAvailable(Catch2)
 
-add_executable(tests-atp tests-atp.cpp)
-add_executable(tests-association tests-association.cpp)
-add_executable(tests-cmdline tests-commandLine.cpp)
-add_executable(tests-filehandler tests-fileHandler.cpp)
-add_executable(tests-engine tests-engine.cpp)
-# Add other test executables for cmdline, filehandler, engine, etc., as needed
+cmake_minimum_required(VERSION 3.13)
 
-# Link each test executable with the corresponding module's library and Catch2
-target_link_libraries(tests-atp ATPLibrary Catch2::Catch2)
-target_link_libraries(tests-association AssociationLibrary Catch2::Catch2)
-target_link_libraries(tests-cmdline CommandLineLibrary Catch2::Catch2)
-target_link_libraries(tests-filehandler FileHandlerLibrary Catch2::Catch2)
-target_link_libraries(tests-engine EngineLibrary Catch2::Catch2)
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(CTest)
+include(Catch)
 
-# Add tests to CTest (optional but useful)
-add_test(NAME ATPTests COMMAND tests-atp)
-add_test(NAME AssociationTests COMMAND tests-association)
-add_test(NAME CmdLineTests COMMAND tests-cmdline)
-add_test(NAME FileHandlerTests COMMAND tests-filehandler)
-add_test(NAME EngineTests COMMAND tests-engine)
-
-# Optionally, if you want to organize tests into a test suite:
-# ctest_add_tests(TESTS tests-atp tests-association)
-# Add other tests similarly
+add_subdirectory(tests-datastructures)
+add_subdirectory(tests-engine)
+add_subdirectory(tests-cmdline)
+add_subdirectory(tests-filehandler)

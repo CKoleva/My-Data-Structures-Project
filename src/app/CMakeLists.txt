@@ -1,5 +1,15 @@
-add_executable(app main.cpp)
+add_executable(
+    app
+)
 
-target_include_directories(app PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(
+    app
+    PUBLIC
+    engine
+)
 
-target_link_libraries(app EngineLibrary)
+target_sources(
+    app
+    PUBLIC
+    main.cpp
+)

@@ -31,9 +31,8 @@ const std::string& CmdLine::operator[](std::size_t index) const {
 //Private methods
 void CmdLine::toUpper(std::string& str)
 {
-    for (char ch : str)
-    {
-        toupper(ch);
+    for (char& ch : str) {
+        ch = std::toupper(ch);
     }
 }
 

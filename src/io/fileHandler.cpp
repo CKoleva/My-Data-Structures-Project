@@ -38,7 +38,6 @@ void FileHandler::loadPair(const std::string& line, ATP* atp, Association& assoc
     if (line.empty() || pos == std::string::npos) 
     {
         association.removeATP(atp);
-        delete atp;
         throw std::runtime_error("The provided data was not in the expected format");
     }
 
@@ -50,14 +49,12 @@ void FileHandler::loadPair(const std::string& line, ATP* atp, Association& assoc
         if (manager.find(' ') != std::string::npos || employee.find(' ') != std::string::npos) 
         {
             association.removeATP(atp);
-            delete atp;
             throw std::runtime_error("The provided data was not in the expected format");
         }
 
         if (!atp->find(manager))
         {
             association.removeATP(atp);
-            delete atp;
             throw std::runtime_error("The provided data was not in the expected format");
         }
         

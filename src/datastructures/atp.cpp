@@ -8,7 +8,7 @@ ATP::ATP(const std::string& name) {
     this->name = name;    
 }
 
-ATP::ATP(const ATP& other) : manager(this->copy(other.manager)) {}
+ATP::ATP(const ATP& other) : manager(this->copy(other.manager)), name(other.name) {}
 
 ATP& ATP::operator= (const ATP& other) {
     

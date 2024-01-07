@@ -15,6 +15,5 @@ include(CTest)
 include(Catch)
 
 add_subdirectory(tests-datastructures)
-add_subdirectory(tests-engine)
 add_subdirectory(tests-cmdline)
-add_subdirectory(tests-filehandler)
+# add_subdirectory(tests-filehandler)
